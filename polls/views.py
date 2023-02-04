@@ -5,12 +5,28 @@ import urllib.request
 import urllib.parse
 import json 
 
+def main():
+    #get_Price("Lamb")
+    get_Recipes("lamb")
+
+"""def get_Price(item):
+    #url = "https://api.kroger.com/v1/products?filter.term={" + item + "}&filter.locationId={01400943}"
+    url = "https://api.kroger.com/v1/products?filter.brand=Kroger&filter.term=lamb&filter.locationId=01400943"
+    json_file = get_json_file(url)
+    d = {"Regular Price": json_file["data"][0]["items"][0]["price"]["regular"]}
+    print(d)"""
+
+def get_Saved_Recipe(id):
+    url = "https://api.edamam.com/api/recipes/v2/" + id + "?type=public&app_id=6bef399e&app_key=cc4d4b804b9ddc917ba1f15ea28babc4"
+    json_file = get_json_file(url)
+    d = {"recipe" : json_file["recipe"]["label"], "ingredients" : json_file["recipe"]["ingredientLines"],
+        "image" : json_file["recipe"]["image"], "recipe_id": json_file["recipe"]["uri"][json_file["recipe"]["uri"].find("_")+1:]}
+    return d
 def get_Recipes(search):
     search = search.replace(" ","%20")
     
     url = "https://api.edamam.com/api/recipes/v2?type=public&q=" + search + "&app_id=6bef399e&app_key=cc4d4b804b9ddc917ba1f15ea28babc4"
     recipe_name,recipe_ingredients, recipe_id,recipe_image,count = _create_list(get_json_file(url))
-
     data = {"list" :[], "Search size":count}
     i = 0   
     while i < count:
@@ -50,9 +66,10 @@ def _create_list(json_file):
         recipe_image.append(recipe["recipe"]["image"])
         recipe_ingredients.append(recipe["recipe"]["ingredientLines"])
         start = recipe["recipe"]["uri"].find("_")
-        recipe_id.append(recipe["recipe"]["uri"][start:])
+        recipe_id.append(recipe["recipe"]["uri"][start+1:])
         count+=1
 
     return [recipe_name,recipe_ingredients,recipe_id,recipe_image,count]
 def index(request):
-    return JsonResponse( get_Recipes("lamb"))  
+    #return JsonResponse( get_Recipes("lamb"))
+    return JsonResponse( get_Saved_Recipe("2d668f6ca2089032ce80abcd814a8936"))
